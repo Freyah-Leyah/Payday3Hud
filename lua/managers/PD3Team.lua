@@ -26,6 +26,13 @@ function PD3Teammate:init(i, teammates_panel, is_player, width)
 	self._main_player = main_player
 	self._PD3_panel = managers.hud:script(PlayerBase.PLAYER_INFO_HUD_PD2).panel
 
+	local template_names = {
+		"WWWWWWWWWWWWQWWW",
+		"AI Teammate",
+		"FutureCatCar",
+		"WWWWWWWWWWWWQWWW"
+	}
+
 	local teammate_panel = self._PD3_panel:panel({
 		align = "left",
 		vertical = "bottom",
@@ -46,16 +53,70 @@ function PD3Teammate:init(i, teammates_panel, is_player, width)
 	local bitmap = teammate_panel:bitmap({
 		name = "panel_background_pd3",
 		texture = "textures/HUDBackground",
-		alpha = 0.4,
+		blend_mode = "normal",
+		alpha = 0.6,
 		x = 0,
 		y = 0,
 		w = teammate_panel:w(),
-		h = teammate_panel:h()
+		h = teammate_panel:h() - 20
 	})
 
 	if not main_player then
 		bitmap:set_w(bitmap:w() - 80)
 		bitmap:set_alpha(0.2)
+	end
+
+	local name = teammate_panel:text({
+		name = "name",
+		vertical = "bottom",
+		align = "left",
+		y = 0,
+		layer = 1,
+		text = " " .. template_names[i],
+		color = Color.white,
+		font_size = tweak_data.hud_players.name_size,
+		font = tweak_data.hud_players.name_font
+	})
+
+	managers.hud:make_fine_text(name)
+	name:set_leftbottom(name:h(), teammate_panel:h() - 70 - 2)
+	name:set_x(name:h() + 2)
+	name:set_bottom(bitmap:h() - 40)
+
+	-- Draw two bars in the middle of the panel
+	local bar_width = teammate_panel:w() - 70  -- Slight margin on sides
+	local bar_height = 4  -- Bar thickness
+
+	-- Health Bar
+	local health_bar = teammate_panel:rect({
+		name = "health_bar",
+		color = Color.white,
+		alpha = 1,
+		x = 40,
+		layer = 10,
+		y = (teammate_panel:h() / 2) - 5,  -- Centered
+		w = bar_width,
+		h = bar_height
+	})
+
+	-- Armor Bar
+	local armor_bar = teammate_panel:rect({
+		name = "armor_bar",
+		color = Color(1, 192/255, 43/255, 255/255),  -- RGBA: Purple
+		alpha = 1,
+		x = 40,
+		layer = 10,
+		y = health_bar:y() - 10,  -- Moves it slightly above
+		w = bar_width,
+		h = bar_height
+	})
+
+	if not main_player then
+		bar_width = bar_width - 75
+		health_bar:set_w(bar_width)
+		armor_bar:set_w(bar_width)
+		health_bar:set_alpha(0.5)
+		armor_bar:set_alpha(0.5)
 	end
 end
 
