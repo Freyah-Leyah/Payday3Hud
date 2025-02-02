@@ -423,6 +423,10 @@ function PD3Teammate:set_armor(data)
 		local armor_ratio = math.clamp(data.current / data.total, 0, 1)
 		local w = teammate_panel:w() - 70
 
+		if armor_ratio >= 0.97 then
+			armor_ratio = 1
+		end
+
 		if armor_ratio <= 0.01 then
 			-- for some reason armor_ratio never actually reaches "0" so we have to hide it manually, ovk pls?
 			armor_bar:hide()
