@@ -44,7 +44,7 @@ function PD3Hijack(hijack_data)
                 if global[fun_hijack] then
                     return global[fun_hijack](self, ...)
                 else
-                    PD3Main:log("ERROR: Function " .. tostring(fun_hijack) .. " not found in global!")
+                    PD3Main:log("ERROR: Function " .. tostring(fun_hijack) .. " not found in redirect class!")
                 end
             end
         end
