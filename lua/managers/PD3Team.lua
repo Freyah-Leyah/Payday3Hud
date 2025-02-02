@@ -43,6 +43,18 @@ function PD3Teammate:init(i, teammates_panel, is_player, width)
 		h = 80
 	})
 
+	self._player_panel_pd3 = teammate_panel:panel({
+		name = "player_pd3"
+	})
+
+	self._health_data = {
+		current = 0,
+		total = 0
+	}
+	self._armor_data = {
+		current = 0,
+		total = 0
+	}
 	-- Set the panel to appear at the bottom of the screen
 	teammate_panel:set_bottom(self._PD3_panel:h())
 
@@ -94,9 +106,9 @@ function PD3Teammate:init(i, teammates_panel, is_player, width)
 		alpha = 1,
 		x = 40,
 		layer = 10,
-		y = (teammate_panel:h() / 2) - 5,  -- Centered
+		y = (teammate_panel:h() / 2) - 10,  -- Centered
 		w = bar_width,
-		h = bar_height
+		h = bar_height + 2
 	})
 
 	-- Armor Bar
@@ -106,9 +118,9 @@ function PD3Teammate:init(i, teammates_panel, is_player, width)
 		alpha = 1,
 		x = 40,
 		layer = 10,
-		y = health_bar:y() - 10,  -- Moves it slightly above
+		y = health_bar:y() - 5,  -- Moves it slightly above
 		w = bar_width,
-		h = bar_height
+		h = bar_height - 1
 	})
 
 	if not main_player then
@@ -118,6 +130,9 @@ function PD3Teammate:init(i, teammates_panel, is_player, width)
 		health_bar:set_alpha(0.5)
 		armor_bar:set_alpha(0.5)
 	end
+
+	self._health_bar = health_bar
+	self._armor_bar = armor_bar
 end
 
 function PD3Teammate:_create_carry(carry_panel)
@@ -389,78 +404,32 @@ end
 
 function PD3Teammate:set_health(data)
 	self._health_data = data
-	local teammate_panel = self._panel:child("player")
-	local radial_health_panel = self._radial_health_panel
-	local radial_health = radial_health_panel:child("radial_health")
-	local radial_rip = radial_health_panel:child("radial_rip")
-	local radial_rip_bg = radial_health_panel:child("radial_rip_bg")
-	local red = data.current / data.total
+	local teammate_panel = self._player_panel_pd3
+	local health_bar = self._health_bar
 
-	if managers.player:has_activate_temporary_upgrade("temporary", "copr_ability") and self._id == HUDManager.PLAYER_PANEL then
-		local static_damage_ratio = managers.player:upgrade_value_nil("player", "copr_static_damage_ratio")
-
-		if static_damage_ratio then
-			red = math.floor((red + 0.01) / static_damage_ratio) * static_damage_ratio
-		end
-
-		local copr_overlay_panel = radial_health_panel:child("copr_overlay_panel")
-
-		if alive(copr_overlay_panel) then
-			for _, notch in ipairs(copr_overlay_panel:children()) do
-				notch:set_visible(notch:script().red <= red + 0.01)
-			end
-		end
-	end
-
-	radial_health:stop()
-
-	if red < radial_health:color().red then
-		self:_damage_taken()
-		radial_health:set_color(Color(1, red, 1, 1))
-
-		if alive(radial_rip) then
-			radial_rip:set_rotation((1 - radial_health:color().r) * 360)
-			radial_rip_bg:set_rotation((1 - radial_health:color().r) * 360)
-		end
-
-		self:update_delayed_damage()
-	else
-		radial_health:animate(function (o)
-			local s = radial_health:color().r
-			local e = red
-			local health_ratio = nil
-
-			over(0.2, function (p)
-				health_ratio = math.lerp(s, e, p)
-
-				radial_health:set_color(Color(1, health_ratio, 1, 1))
-
-				if alive(radial_rip) then
-					radial_rip:set_rotation((1 - radial_health:color().r) * 360)
-					radial_rip_bg:set_rotation((1 - radial_health:color().r) * 360)
-				end
-
-				self:update_delayed_damage()
-
-				local copr_overlay_panel = radial_health_panel:child("copr_overlay_panel")
-
-				if alive(copr_overlay_panel) then
-					for _, notch in ipairs(copr_overlay_panel:children()) do
-						notch:set_visible(notch:script().red <= health_ratio + 0.01)
-					end
-				end
-			end)
-		end)
+	if health_bar then
+		local health_ratio = math.clamp(data.current / data.total, 0, 1)
+		local w = teammate_panel:w() - 70
+		health_bar:set_w(w * health_ratio)
 	end
 end
 
 function PD3Teammate:set_armor(data)
-	local teammate_panel = self._panel:child("player")
 	self._armor_data = data
-	local radial_health_panel = self._radial_health_panel
-	local radial_shield = radial_health_panel:child("radial_shield")
-	local ratio = data.total ~= 0 and data.current / data.total or 0
+	local teammate_panel = self._player_panel_pd3
+	local armor_bar = self._armor_bar
 
-	radial_shield:set_color(Color(1, ratio, 1, 1))
-	self:update_delayed_damage()
+	if armor_bar then
+		local armor_ratio = math.clamp(data.current / data.total, 0, 1)
+		local w = teammate_panel:w() - 70
+
+		if armor_ratio <= 0.01 then
+			-- for some reason armor_ratio never actually reaches "0" so we have to hide it manually, ovk pls?
+			armor_bar:hide()
+		else
+			armor_bar:show()
+		end
+
+		armor_bar:set_w(w * armor_ratio)
+	end
 end

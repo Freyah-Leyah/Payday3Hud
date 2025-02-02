@@ -1,5 +1,5 @@
 <mod name="PD3Hud" author="Freyah; Eightan" color="Color(0,0,0)">
-	<AssetUpdates id="" version="v0.0.2" provider="modworkshop"/>
+	<AssetUpdates id="" version="v0.0.5" provider="modworkshop"/>
 
     <Localization directory="loc" default="english.json">
 		<loc file="english.json" language="english"/>
