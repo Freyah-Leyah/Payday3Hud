@@ -92,7 +92,7 @@ function PD3Teammate:init(i, teammates_panel, is_player, width)
 
 	managers.hud:make_fine_text(name)
 	name:set_leftbottom(name:h(), teammate_panel:h() - 70 - 2)
-	name:set_x(name:h() + 2)
+	name:set_x(name:h() + 15)
 	name:set_bottom(bitmap:h() - 40)
 
 	-- Draw two bars in the middle of the panel
@@ -133,6 +133,26 @@ function PD3Teammate:init(i, teammates_panel, is_player, width)
 
 	self._health_bar = health_bar
 	self._armor_bar = armor_bar
+	
+	--Mask Icon
+	local texture, rect = tweak_data.hud_icons:get_icon_data("pd2_mask_" .. i)
+	local size = 64
+	local mask_pad = 2
+	local mask_pad_x = 10
+	local mask_pad_y = 6
+	local y = teammate_panel:h() - name:h() - size + mask_pad
+	local mask = teammate_panel:bitmap({
+		name = "mask",
+		visible = true,
+		layer = 1,
+		color = Color.white,
+		texture = texture,
+		texture_rect = rect,
+		x = - mask_pad_x,
+		w = size,
+		h = size,
+		y = y - mask_pad_y
+	})
 end
 
 function PD3Teammate:_create_carry(carry_panel)
