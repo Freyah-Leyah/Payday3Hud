@@ -21,7 +21,42 @@ Hooks:PostHook(HUDTeammate, "init", "PD3Init", function(self, i, teammates_panel
 end)
 
 function PD3Teammate:init(i, teammates_panel, is_player, width)
+	local main_player = i == HUDManager.PLAYER_PANEL
+	self._id = i
+	self._main_player = main_player
+	self._PD3_panel = managers.hud:script(PlayerBase.PLAYER_INFO_HUD_PD2).panel
 
+	local teammate_panel = self._PD3_panel:panel({
+		align = "left",
+		vertical = "bottom",
+		visible = true,
+		x = 0,
+		name = "" .. i,
+		w = 350,
+		h = 80
+	})
+
+	-- Set the panel to appear at the bottom of the screen
+	teammate_panel:set_bottom(self._PD3_panel:h())
+
+	if not main_player then
+		teammate_panel:set_y(teammate_panel:y() - (70 * i))  -- Move up based on index
+	end
+
+	local bitmap = teammate_panel:bitmap({
+		name = "panel_background_pd3",
+		texture = "textures/HUDBackground",
+		alpha = 0.4,
+		x = 0,
+		y = 0,
+		w = teammate_panel:w(),
+		h = teammate_panel:h()
+	})
+
+	if not main_player then
+		bitmap:set_w(bitmap:w() - 80)
+		bitmap:set_alpha(0.2)
+	end
 end
 
 function PD3Teammate:_create_carry(carry_panel)
