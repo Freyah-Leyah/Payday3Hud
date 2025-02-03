@@ -204,37 +204,60 @@ function PD3Teammate:add_panel()
 	local name = self._name_panel
 	teammate_panel:set_visible(true)
 	local character_texture = nil
+	local character = nil
+	local last_id_ran = (self._peer_id or 0)
 
-	local character = managers.criminals:character_name_by_peer_id(self._peer_id)
+	character = managers.criminals:character_name_by_peer_id(self._peer_id)
 
-	if self._main_player then
-		character = managers.criminals:character_name_by_peer_id(self._main_player)
+	if character and self._peer_id ~= last_id_ran then
+		last_id_ran =  self._peer_id
+		character_texture = "textures/" .. tostring(character)
+
+		PD3Main:log(tostring(character_texture))
+
+		local size = 64
+		local heister_pad = 2
+		local heister_pad_x = 17
+		local heister_pad_y = 6
+		local y = teammate_panel:h() - name:h() - size + heister_pad
+		local heister = teammate_panel:bitmap({
+			name = "heister" .. tostring(self._peer_id),
+			visible = true,
+			layer = 1,
+			texture = character_texture or "", -- no idea what to put here
+			x = - heister_pad_x,
+			w = 64,
+			h = 64,
+			y = - heister_pad_y,
+			blend_mode = "normal",
+			render_template = "VertexColorTextured"
+		})
+	else
+		character = managers.criminals:character_name_by_peer_id(managers.network:session():local_peer():id())
+		if character then
+			character_texture = "textures/" .. tostring(character)
+		end
+
+		PD3Main:log(tostring(character_texture), "main player")
+
+		local size = 64
+		local heister_pad = 2
+		local heister_pad_x = 17
+		local heister_pad_y = 6
+		local y = teammate_panel:h() - name:h() - size + heister_pad
+		local heister = teammate_panel:bitmap({
+			name = "heister_main",
+			visible = true,
+			layer = 1,
+			texture = character_texture or "", -- no idea what to put here
+			x = - heister_pad_x,
+			w = 64,
+			h = 64,
+			y = - heister_pad_y,
+			blend_mode = "normal",
+			render_template = "VertexColorTextured"
+		})
 	end
-
-	if character then
-	 	local character_name = CriminalsManager.convert_old_to_new_character_workname(character)
-		character_texture = "textures/" .. tostring(character_name)
-	end
-
-	log(tostring(character_texture))
-
-	local size = 64
-	local heister_pad = 2
-	local heister_pad_x = 17
-	local heister_pad_y = 6
-	local y = teammate_panel:h() - name:h() - size + heister_pad
-	local heister = teammate_panel:bitmap({
-		name = "heister",
-		visible = true,
-		layer = 1,
-		texture = character_texture or "", -- no idea what to put here
-		x = - heister_pad_x,
-		w = 128,
-		h = 128,
-		y = - heister_pad_y,
-		blend_mode = "normal",
-		render_template = "VertexColorTextured"
-	})
 end
 
 function PD3Teammate:set_name(teammate_name)
