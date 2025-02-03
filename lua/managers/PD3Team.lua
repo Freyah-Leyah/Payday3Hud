@@ -2,7 +2,7 @@ PD3Teammate = PD3Teammate or class(HUDTeammate)
 
 PD3Hijack({
 	global_to_hijack = HUDTeammate,  -- Target instance where functions will be hijacked
-	func_to_hijack = { "_create_carry", "_create_radial_health", "set_health", "set_armor" }, -- Name of the functions to hijack
+	func_to_hijack = { "_create_carry", "_create_radial_health", "set_health", "set_armor", "set_ammo_amount_by_type" }, -- Name of the functions to hijack
 	global = PD3Teammate  -- Instance where the redirect functions exist
 })
 
@@ -87,7 +87,7 @@ function PD3Teammate:init(i, teammates_panel, is_player, width)
 		text = " " .. template_names[i],
 		color = Color.white,
 		font_size = tweak_data.hud_players.name_size,
-		font = tweak_data.hud_players.name_font
+		font = tweak_data.menu.pd2_large_font
 	})
 
 	managers.hud:make_fine_text(name)
@@ -106,7 +106,7 @@ function PD3Teammate:init(i, teammates_panel, is_player, width)
 		alpha = 1,
 		x = 40,
 		layer = 10,
-		y = (teammate_panel:h() / 2) - 10,  -- Centered
+		y = (teammate_panel:h() / 2) - 7,  -- Centered
 		w = bar_width,
 		h = bar_height + 2
 	})
@@ -133,8 +133,7 @@ function PD3Teammate:init(i, teammates_panel, is_player, width)
 
 	self._health_bar = health_bar
 	self._armor_bar = armor_bar
-	
-	--Mask Icon
+
 	local texture, rect = tweak_data.hud_icons:get_icon_data("pd2_mask_" .. i)
 	local size = 64
 	local mask_pad = 2
@@ -153,6 +152,323 @@ function PD3Teammate:init(i, teammates_panel, is_player, width)
 		h = size,
 		y = - mask_pad_y
 	})
+
+	if main_player then
+		local weapons_panel = self._PD3_panel:panel({
+			name = "weapons_panel_pd3",
+			visible = true,
+			align = "right",
+			vertical = "bottom",
+			layer = 2,
+			x = self._PD3_panel:w() - 450,
+			w = 800,
+			h = 120
+		})
+
+		weapons_panel:set_bottom(self._PD3_panel:h() + 30)
+
+		PD3Teammate._create_weapon_panel(self, weapons_panel)
+	end
+end
+
+function PD3Teammate:_create_weapon_panel(weapon_panel)
+	local primary_bg = weapon_panel:bitmap({
+		name = "wpn_panel_background_pd3_primary_bg",
+		texture = "textures/SmallHUDBackground",
+		blend_mode = "normal",
+		alpha = 0.6,
+		w = 120,
+		h = 60
+	})
+	local secondary_bg = weapon_panel:bitmap({
+		name = "wpn_panel_background_pd3_secondary_bg",
+		texture = "textures/SmallHUDBackground",
+		blend_mode = "normal",
+		alpha = 0.6,
+		w = 120,
+		h = 60
+	})
+	local equipment_bg = weapon_panel:bitmap({
+		name = "wpn_panel_background_pd3_equipment_bg",
+		texture = "textures/SmallHUDBackground",
+		blend_mode = "normal",
+		alpha = 0.6,
+		w = 80,
+		h = 60
+	})
+	local grenades_bg = weapon_panel:bitmap({
+		name = "wpn_panel_background_pd3_grenades_bg",
+		texture = "textures/SmallHUDBackground",
+		blend_mode = "normal",
+		alpha = 0.6,
+		w = 80,
+		h = 60
+	})
+	local cable_ties_bg = weapon_panel:bitmap({
+		name = "wpn_panel_background_pd3_cable_ties_bg",
+		texture = "textures/SmallHUDBackground",
+		blend_mode = "normal",
+		alpha = 0.6,
+		w = 80,
+		h = 60
+	})
+
+	secondary_bg:set_x(primary_bg:w() - 24)
+	equipment_bg:set_x(secondary_bg:x() + secondary_bg:w() - 8)
+	grenades_bg:set_x(equipment_bg:x() + equipment_bg:w() - 13)
+	cable_ties_bg:set_x(grenades_bg:x() + grenades_bg:w()- 13)
+
+	local primary_ammo_counter_bg = weapon_panel:text({
+		name = "wpn_primary_ammo_pd3_bg",
+		text = "000",
+		alpha = 0.5,
+		layer = 6,
+		blend_mode = "normal",
+		font_size = 33,
+		x = primary_bg:x(),
+		y = primary_bg:y(),
+		color = Color.white,
+		font = tweak_data.menu.pd2_large_font,
+	})
+	local primary_ammo_counter = weapon_panel:text({
+		name = "wpn_primary_ammo_pd3",
+		text = "00",
+		alpha = 0.9,
+		layer = 7,
+		blend_mode = "normal",
+		font_size = 33,
+		x = primary_bg:x(),
+		y = primary_bg:y(),
+		color = Color.white,
+		font = tweak_data.menu.pd2_large_font,
+	})
+
+	local xp = 11
+
+	if #primary_ammo_counter:text() == 3 then
+		xp = 17
+	end
+
+	if #primary_ammo_counter:text() == 1 then
+		xp = 5
+	end
+
+	managers.hud:make_fine_text(primary_ammo_counter_bg)
+	primary_ammo_counter_bg:set_center((primary_bg:w() / 2) - 17, primary_bg:h() / 2)
+
+	managers.hud:make_fine_text(primary_ammo_counter)
+	primary_ammo_counter:set_center((primary_bg:w() / 2) - xp, primary_bg:h() / 2)
+
+	local spare_primary_ammo_counter_bg = weapon_panel:text({
+		name = "wpn_spare_primary_ammo_pd3_bg",
+		text = "000",
+		alpha = 0.3,
+		layer = 6,
+		blend_mode = "normal",
+		font_size = 26,
+		x = primary_bg:x(),
+		y = primary_bg:y(),
+		color = Color.white,
+		font = tweak_data.menu.pd2_large_font,
+	})
+	local spare_primary_ammo_counter = weapon_panel:text({
+		name = "wpn_spare_primary_ammo_pd3",
+		text = "00",
+		alpha = 0.7,
+		layer = 7,
+		blend_mode = "normal",
+		font_size = 26,
+		x = primary_bg:x(),
+		y = primary_bg:y(),
+		color = Color.white,
+		font = tweak_data.menu.pd2_large_font,
+	})
+
+	local x = 44
+
+	if #spare_primary_ammo_counter:text() == 3 then
+		x = 34
+	end
+
+	if #spare_primary_ammo_counter:text() == 1 then
+		x = 54
+	end
+
+	managers.hud:make_fine_text(spare_primary_ammo_counter_bg)
+	spare_primary_ammo_counter_bg:set_x(spare_primary_ammo_counter_bg:w() + 35)
+	spare_primary_ammo_counter_bg:set_y((spare_primary_ammo_counter_bg:h() / 2) + 15)
+
+	managers.hud:make_fine_text(spare_primary_ammo_counter)
+	spare_primary_ammo_counter:set_x(spare_primary_ammo_counter_bg:w() + x)
+	spare_primary_ammo_counter:set_y((spare_primary_ammo_counter_bg:h() / 2) + 15)
+
+	local function center_text(text_element, parent_panel)
+		managers.hud:make_fine_text(text_element)
+		text_element:set_center(parent_panel:x() + parent_panel:w() / 2, parent_panel:y() + parent_panel:h() / 2)
+	end
+
+	local secondary_ammo_counter_bg = weapon_panel:text({
+		name = "wpn_secondary_ammo_pd3_bg",
+		text = "000",
+		alpha = 0.5,
+		layer = 6,
+		blend_mode = "normal",
+		font_size = 33,
+		color = Color.white,
+		font = tweak_data.menu.pd2_large_font,
+	})
+
+	local secondary_ammo_counter = weapon_panel:text({
+		name = "wpn_secondary_ammo_pd3",
+		text = "00",
+		alpha = 0.9,
+		layer = 7,
+		blend_mode = "normal",
+		font_size = 33,
+		color = Color.white,
+		font = tweak_data.menu.pd2_large_font,
+	})
+
+	center_text(secondary_ammo_counter_bg, secondary_bg)
+	center_text(secondary_ammo_counter, secondary_bg)
+
+	local xps = 23
+
+	if #secondary_ammo_counter:text() == 3 then
+		xps = 17
+	end
+
+	if #secondary_ammo_counter:text() == 1 then
+		xps = 5
+	end
+
+	secondary_ammo_counter_bg:set_x(secondary_ammo_counter_bg:x() - 17)
+	secondary_ammo_counter:set_x(secondary_ammo_counter:x() - xps)
+
+	local spare_secondary_ammo_counter_bg = weapon_panel:text({
+		name = "wpn_spare_secondary_ammo_pd3_bg",
+		text = "000",
+		alpha = 0.3,
+		layer = 6,
+		blend_mode = "normal",
+		font_size = 26,
+		color = Color.white,
+		font = tweak_data.menu.pd2_large_font,
+	})
+
+	local spare_secondary_ammo_counter = weapon_panel:text({
+		name = "wpn_spare_secondary_ammo_pd3",
+		text = "00",
+		alpha = 0.7,
+		layer = 7,
+		blend_mode = "normal",
+		font_size = 26,
+		color = Color.white,
+		font = tweak_data.menu.pd2_large_font,
+	})
+
+	center_text(spare_secondary_ammo_counter_bg, secondary_bg)
+	center_text(spare_secondary_ammo_counter, secondary_bg)
+
+	local xs = 22
+
+	if #spare_secondary_ammo_counter:text() == 3 then
+		xs = 17
+	end
+
+	if #spare_secondary_ammo_counter:text() == 1 then
+		xs = 27
+	end
+
+	spare_secondary_ammo_counter_bg:set_x(spare_secondary_ammo_counter_bg:x() + 17)
+	spare_secondary_ammo_counter:set_x(spare_secondary_ammo_counter:x() + xs)
+	spare_secondary_ammo_counter:set_y((spare_secondary_ammo_counter_bg:h() / 2) + 15)
+	spare_secondary_ammo_counter_bg:set_y((spare_secondary_ammo_counter_bg:h() / 2) + 15)
+	self._spare_ammo_primary = spare_primary_ammo_counter
+	self._spare_ammo_secondary = spare_secondary_ammo_counter
+	self._ammo_primary = primary_ammo_counter
+	self._ammo_secondary = secondary_ammo_counter
+	self._ammo_primary_bg = primary_ammo_counter_bg
+	self._ammo_secondary_bg = secondary_ammo_counter_bg
+	self._spare_ammo_primary_bg = spare_primary_ammo_counter_bg
+	self._spare_ammo_secondary_bg = spare_secondary_ammo_counter_bg
+	self._ammo_primary_parent = primary_bg
+	self._ammo_secondary_parent = secondary_bg
+end
+
+function PD3Teammate:set_ammo_amount_by_type(type, max_clip, current_clip, current_left, max, weapon_panel)
+	local low_ammo = current_left <= math.round(max_clip / 2)
+	local low_ammo_clip = current_clip <= math.round(max_clip / 4)
+	local out_of_ammo_clip = current_clip <= 0
+	local out_of_ammo = current_left <= 0
+
+	local index = managers.player:equipped_weapon_unit():base():selection_index()
+
+	if index == 1 then
+		self._ammo_secondary_bg:set_alpha(0.3)
+		self._ammo_secondary:set_alpha(1)
+		self._ammo_secondary_parent:set_alpha(0.6)
+
+		self._ammo_primary_bg:set_alpha(0.2)
+		self._ammo_primary:set_alpha(0.4)
+		self._ammo_primary_parent:set_alpha(0.4)
+	elseif index == 2 then
+		self._ammo_primary_bg:set_alpha(0.3)
+		self._ammo_primary:set_alpha(1)
+		self._ammo_primary_parent:set_alpha(0.6)
+
+		self._ammo_secondary_bg:set_alpha(0.2)
+		self._ammo_secondary_parent:set_alpha(0.4)
+		self._ammo_secondary:set_alpha(0.4)
+	end
+
+	if self._ammo_primary and type == "primary" then
+		self._ammo_primary:set_text(tostring(current_clip))
+		PD3Figure("weapon_panel", self._ammo_primary)
+	end
+
+	if self._spare_ammo_primary and type == "primary" then
+		self._spare_ammo_primary:set_text(tostring(current_left))
+		PD3Figure("weapon_panel", self._spare_ammo_primary)
+	end
+
+	if self._ammo_secondary and type == "secondary" then
+		self._ammo_secondary:set_text(tostring(current_clip))
+		PD3Figure("weapon_panel", self._ammo_secondary)
+	end
+
+	if self._spare_ammo_secondary and type == "secondary" then
+		self._spare_ammo_secondary:set_text(tostring(current_left))
+		PD3Figure("weapon_panel", self._spare_ammo_secondary)
+	end
+
+	if type == "primary" then
+		if low_ammo_clip then
+			self._ammo_primary:set_color(Color(1, 255/255, 54/255, 54/255))
+			self._ammo_primary_bg:set_color(Color(1, 255/255, 54/255, 54/255))
+		elseif low_ammo then
+			self._spare_ammo_primary:set_color(Color(1, 255/255, 54/255, 54/255))
+			self._spare_ammo_primary_bg:set_color(Color(1, 255/255, 54/255, 54/255))
+		else
+			self._ammo_primary:set_color(Color.white)
+			self._ammo_primary_bg:set_color(Color.white)
+			self._spare_ammo_primary:set_color(Color.white)
+		end
+	end
+
+	if type == "secondary" then
+		if low_ammo_clip then
+			self._ammo_secondary:set_color(Color(1, 255/255, 54/255, 54/255))
+			self._ammo_secondary_bg:set_color(Color(1, 255/255, 54/255, 54/255))
+		elseif low_ammo then
+			self._spare_ammo_secondary:set_color(Color(1, 255/255, 54/255, 54/255))
+			self._spare_ammo_secondary_bg:set_color(Color(1, 255/255, 54/255, 54/255))
+		else
+			self._ammo_secondary:set_color(Color.white)
+			self._ammo_secondary_bg:set_color(Color.white)
+			self._spare_ammo_secondary:set_color(Color.white)
+		end
+	end
 end
 
 function PD3Teammate:_create_carry(carry_panel)

@@ -7,5 +7,7 @@
 
 	<AddFiles directory="assets/">
         <dds path="textures/HUDBackground"/>
+        <dds path="textures/SmallHUDBackground"/>
+        <dds path="textures/SmallHUDBackground2"/>
     </AddFiles>
 </mod>

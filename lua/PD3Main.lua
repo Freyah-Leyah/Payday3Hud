@@ -33,12 +33,12 @@ function PD3Hijack(hijack_data)
 
     for _, fun_hijack in pairs(func_to_hijack) do
         if not HijackFunc[fun_hijack] then
-            PD3Main:log(tostring(fun_hijack) .. " hijacked")
+            --PD3Main:log(tostring(fun_hijack) .. " hijacked")
             HijackFunc[fun_hijack] = true
 
             -- Hijacking function
             global_to_hijack[fun_hijack] = function(self,...)
-                PD3Main:log("Calling " .. tostring(fun_hijack) .. " in " .. tostring(global))
+                --PD3Main:log("Calling " .. tostring(fun_hijack) .. " in " .. tostring(global))
 
                 -- Ensure the function exists before calling
                 if global[fun_hijack] then
@@ -47,6 +47,62 @@ function PD3Hijack(hijack_data)
                     PD3Main:log("ERROR: Function " .. tostring(fun_hijack) .. " not found in redirect class!")
                 end
             end
+        end
+    end
+end
+
+PD3Figure_OriginalPositions = {}
+function PD3Figure(type, obj)
+    if type == "weapon_panel" then
+        local text_length = #obj:text()
+        local lenghts = {
+            wpn_primary_ammo_pd3 = {
+                12,
+                0,
+                17
+            },
+            wpn_spare_primary_ammo_pd3 = {
+                10,
+                0,
+                13
+            },
+            wpn_secondary_ammo_pd3 = {
+                24,
+                -12,
+                17
+            },
+            wpn_spare_secondary_ammo_pd3 = {
+                10,
+                0,
+                17
+            }
+        }
+
+        if text_length == 2 then
+            if not PD3Figure_OriginalPositions[obj:name() .. text_length] then
+                obj:set_x(obj:x() + lenghts[obj:name()][text_length])
+                PD3Figure_OriginalPositions[obj:name() .. text_length] = obj:x()
+            end
+            obj:set_x(PD3Figure_OriginalPositions[obj:name() .. text_length])
+            return
+        end
+
+        if text_length == 3 then
+            if not PD3Figure_OriginalPositions[obj:name() .. text_length] then
+                obj:set_x(obj:x() + lenghts[obj:name()][text_length])
+                PD3Figure_OriginalPositions[obj:name() .. text_length] = obj:x()
+            end
+            obj:set_x(PD3Figure_OriginalPositions[obj:name() .. text_length])
+            return
+        end
+
+        if text_length == 1 then
+            if not PD3Figure_OriginalPositions[obj:name() .. text_length] then
+                obj:set_x(obj:x() + lenghts[obj:name()][text_length])
+                PD3Figure_OriginalPositions[obj:name() .. text_length] = obj:x()
+            end
+            obj:set_x(PD3Figure_OriginalPositions[obj:name() .. text_length])
+            return
         end
     end
 end
