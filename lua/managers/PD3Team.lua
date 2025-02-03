@@ -134,24 +134,24 @@ function PD3Teammate:init(i, teammates_panel, is_player, width)
 	self._health_bar = health_bar
 	self._armor_bar = armor_bar
 
-	-- local texture, rect = tweak_data.hud_icons:get_icon_data("pd2_mask_" .. i)
-	-- local size = 64
-	-- local mask_pad = 2
-	-- local mask_pad_x = 17
-	-- local mask_pad_y = 6
-	-- local y = teammate_panel:h() - name:h() - size + mask_pad
-	-- local mask = teammate_panel:bitmap({
-	-- 	name = "mask",
-	-- 	visible = true,
-	-- 	layer = 1,
-	-- 	color = Color.white,
-	-- 	texture = texture,
-	-- 	texture_rect = rect,
-	-- 	x = - mask_pad_x,
-	-- 	w = size,
-	-- 	h = size,
-	-- 	y = - mask_pad_y
-	-- })
+	local texture, rect = tweak_data.hud_icons:get_icon_data("pd2_mask_" .. i)
+	local size = 64
+	local mask_pad = 2
+	local mask_pad_x = 17
+	local mask_pad_y = 6
+	local y = teammate_panel:h() - name:h() - size + mask_pad
+	local mask = teammate_panel:bitmap({
+		name = "mask",
+		visible = true,
+		layer = 1,
+		color = Color.white,
+		texture = texture,
+		texture_rect = rect,
+		x = - mask_pad_x,
+		w = size,
+		h = size,
+		y = - mask_pad_y
+	})
 
 	if main_player then
 		local weapons_panel = self._PD3_panel:panel({
