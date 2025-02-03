@@ -2,7 +2,7 @@ PD3Teammate = PD3Teammate or class(HUDTeammate)
 
 PD3Hijack({
 	global_to_hijack = HUDTeammate,  -- Target instance where functions will be hijacked
-	func_to_hijack = { "_create_carry", "_create_radial_health", "set_health", "set_armor", "set_ammo_amount_by_type" }, -- Name of the functions to hijack
+	func_to_hijack = { "_create_carry", "_create_radial_health", "set_health", "set_armor", "set_ammo_amount_by_type", "set_name" }, -- Name of the functions to hijack
 	global = PD3Teammate  -- Instance where the redirect functions exist
 })
 
@@ -95,6 +95,8 @@ function PD3Teammate:init(i, teammates_panel, is_player, width)
 	name:set_x(name:h() + 10)
 	name:set_bottom(bitmap:h() - 40)
 
+	self._name_panel = name
+
 	-- Draw two bars in the middle of the panel
 	local bar_width = teammate_panel:w() - 70  -- Slight margin on sides
 	local bar_height = 4  -- Bar thickness
@@ -169,6 +171,11 @@ function PD3Teammate:init(i, teammates_panel, is_player, width)
 
 		PD3Teammate._create_weapon_panel(self, weapons_panel)
 	end
+end
+
+function PD3Teammate:set_name(teammate_name)
+	local name = self._name_panel
+	name:set_text(" " .. teammate_name)
 end
 
 function PD3Teammate:_create_weapon_panel(weapon_panel)
