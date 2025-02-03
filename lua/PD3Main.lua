@@ -65,13 +65,13 @@ function PD3Figure(type, obj)
             wpn_spare_primary_ammo_pd3 = {
                 10,
                 10,
-                -9,
+                1,
                 -12
             },
             wpn_secondary_ammo_pd3 = {
-                24,
+                12,
+                12,
                 -12,
-                -24,
                 -12
             },
             wpn_spare_secondary_ammo_pd3 = {

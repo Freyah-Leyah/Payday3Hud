@@ -2,7 +2,7 @@ PD3Teammate = PD3Teammate or class(HUDTeammate)
 
 PD3Hijack({
 	global_to_hijack = HUDTeammate,  -- Target instance where functions will be hijacked
-	func_to_hijack = { "_create_carry", "_create_radial_health", "set_health", "set_armor", "set_ammo_amount_by_type", "set_name", "set_revives_amount" }, -- Name of the functions to hijack
+	func_to_hijack = { "_create_carry", "_create_radial_health", "set_health", "set_armor", "set_ammo_amount_by_type", "set_name",  "set_revives_amount" }, -- Name of the functions to hijack
 	global = PD3Teammate  -- Instance where the redirect functions exist
 })
 
