@@ -2,7 +2,7 @@ PD3Teammate = PD3Teammate or class(HUDTeammate)
 
 PD3Hijack({
 	global_to_hijack = HUDTeammate,  -- Target instance where functions will be hijacked
-	func_to_hijack = { "_create_carry", "_create_radial_health", "set_health", "set_armor", "set_ammo_amount_by_type", "set_name" }, -- Name of the functions to hijack
+	func_to_hijack = { "_create_carry", "_create_radial_health", "set_health", "set_armor", "set_ammo_amount_by_type", "set_name", "set_revives_amount" }, -- Name of the functions to hijack
 	global = PD3Teammate  -- Instance where the redirect functions exist
 })
 
@@ -97,6 +97,41 @@ function PD3Teammate:init(i, teammates_panel, is_player, width)
 
 	self._name_panel = name
 
+	local revive_panel_position = 20
+	local revive_panel = teammate_panel:panel({
+		name = "revive_panel",
+		visible = false,
+		w = name:h(),
+		h = name:h()
+	})
+
+	revive_panel:set_w(name:h() + revive_panel_position)
+	revive_panel:set_h(name:h() + revive_panel_position)
+	revive_panel:set_center_y(name:x() + revive_panel_position)
+	revive_panel:set_right(name:x())
+
+	revive_panel:text({
+		text = "2",
+		name = "revive_amount",
+		font_size = 20,
+		font = tweak_data.menu.pd2_large_font,
+		align = "center",
+		layer = 3,
+		color = Color.white
+	})
+
+	local arrow_size = 16
+	local arrow = revive_panel:bitmap({
+		texture = "guis/textures/pd2/arrow_downcounter",
+		name = "revive_arrow",
+		layer = 3,
+		h = arrow_size,
+		w = arrow_size
+	})
+
+	arrow:set_left(revive_panel_position + 5)
+	self._revive_panel = revive_panel
+
 	-- Draw two bars in the middle of the panel
 	local bar_width = teammate_panel:w() - 70  -- Slight margin on sides
 	local bar_height = 4  -- Bar thickness
@@ -176,6 +211,19 @@ end
 function PD3Teammate:set_name(teammate_name)
 	local name = self._name_panel
 	name:set_text(" " .. teammate_name)
+end
+
+function PD3Teammate:set_revives_amount(revive_amount)
+	if revive_amount then
+		local revive_panel = self._revive_panel
+		local revive_amount_text = revive_panel:child("revive_amount")
+
+		revive_panel:set_visible(true)
+
+		if revive_amount_text then
+			revive_amount_text:set_text(tostring(math.max(revive_amount - 1, 0)))
+		end
+	end
 end
 
 function PD3Teammate:_create_weapon_panel(weapon_panel)
