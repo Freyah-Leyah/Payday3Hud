@@ -134,24 +134,24 @@ function PD3Teammate:init(i, teammates_panel, is_player, width)
 	self._health_bar = health_bar
 	self._armor_bar = armor_bar
 
-	local texture, rect = tweak_data.hud_icons:get_icon_data("pd2_mask_" .. i)
-	local size = 64
-	local mask_pad = 2
-	local mask_pad_x = 17
-	local mask_pad_y = 6
-	local y = teammate_panel:h() - name:h() - size + mask_pad
-	local mask = teammate_panel:bitmap({
-		name = "mask",
-		visible = true,
-		layer = 1,
-		color = Color.white,
-		texture = texture,
-		texture_rect = rect,
-		x = - mask_pad_x,
-		w = size,
-		h = size,
-		y = - mask_pad_y
-	})
+	-- local texture, rect = tweak_data.hud_icons:get_icon_data("pd2_mask_" .. i)
+	-- local size = 64
+	-- local mask_pad = 2
+	-- local mask_pad_x = 17
+	-- local mask_pad_y = 6
+	-- local y = teammate_panel:h() - name:h() - size + mask_pad
+	-- local mask = teammate_panel:bitmap({
+	-- 	name = "mask",
+	-- 	visible = true,
+	-- 	layer = 1,
+	-- 	color = Color.white,
+	-- 	texture = texture,
+	-- 	texture_rect = rect,
+	-- 	x = - mask_pad_x,
+	-- 	w = size,
+	-- 	h = size,
+	-- 	y = - mask_pad_y
+	-- })
 
 	if main_player then
 		local weapons_panel = self._PD3_panel:panel({
@@ -232,7 +232,7 @@ function PD3Teammate:_create_weapon_panel(weapon_panel)
 	})
 	local primary_ammo_counter = weapon_panel:text({
 		name = "wpn_primary_ammo_pd3",
-		text = "00",
+		text = "000",
 		alpha = 0.9,
 		layer = 7,
 		blend_mode = "normal",
@@ -273,8 +273,8 @@ function PD3Teammate:_create_weapon_panel(weapon_panel)
 	})
 	local spare_primary_ammo_counter = weapon_panel:text({
 		name = "wpn_spare_primary_ammo_pd3",
-		text = "00",
-		alpha = 0.7,
+		text = "000",
+		alpha = 0.9,
 		layer = 7,
 		blend_mode = "normal",
 		font_size = 26,
@@ -320,7 +320,7 @@ function PD3Teammate:_create_weapon_panel(weapon_panel)
 
 	local secondary_ammo_counter = weapon_panel:text({
 		name = "wpn_secondary_ammo_pd3",
-		text = "00",
+		text = "000",
 		alpha = 0.9,
 		layer = 7,
 		blend_mode = "normal",
@@ -358,8 +358,8 @@ function PD3Teammate:_create_weapon_panel(weapon_panel)
 
 	local spare_secondary_ammo_counter = weapon_panel:text({
 		name = "wpn_spare_secondary_ammo_pd3",
-		text = "00",
-		alpha = 0.7,
+		text = "000",
+		alpha = 0.9,
 		layer = 7,
 		blend_mode = "normal",
 		font_size = 26,
@@ -399,75 +399,106 @@ end
 function PD3Teammate:set_ammo_amount_by_type(type, max_clip, current_clip, current_left, max, weapon_panel)
 	local low_ammo = current_left <= math.round(max_clip / 2)
 	local low_ammo_clip = current_clip <= math.round(max_clip / 4)
-	local out_of_ammo_clip = current_clip <= 0
-	local out_of_ammo = current_left <= 0
 
 	local index = managers.player:equipped_weapon_unit():base():selection_index()
 
-	if index == 1 then
-		self._ammo_secondary_bg:set_alpha(0.3)
-		self._ammo_secondary:set_alpha(1)
-		self._ammo_secondary_parent:set_alpha(0.6)
+	-- Function to set alpha values
+	local function set_ammo_display(primary_active)
+		if primary_active then
+			self._ammo_primary_bg:set_alpha(0.3)
+			self._ammo_primary:set_alpha(1)
+			self._ammo_primary_parent:set_alpha(0.6)
+			self._spare_ammo_primary:set_alpha(0.9)
 
-		self._ammo_primary_bg:set_alpha(0.2)
-		self._ammo_primary:set_alpha(0.4)
-		self._ammo_primary_parent:set_alpha(0.4)
-	elseif index == 2 then
-		self._ammo_primary_bg:set_alpha(0.3)
-		self._ammo_primary:set_alpha(1)
-		self._ammo_primary_parent:set_alpha(0.6)
+			self._ammo_secondary_bg:set_alpha(0.2)
+			self._ammo_secondary:set_alpha(0.4)
+			self._ammo_secondary_parent:set_alpha(0.4)
+			self._spare_ammo_secondary:set_alpha(0.4)
+		else
+			self._ammo_secondary_bg:set_alpha(0.3)
+			self._ammo_secondary:set_alpha(1)
+			self._ammo_secondary_parent:set_alpha(0.6)
+			self._spare_ammo_secondary:set_alpha(0.9)
 
-		self._ammo_secondary_bg:set_alpha(0.2)
-		self._ammo_secondary_parent:set_alpha(0.4)
-		self._ammo_secondary:set_alpha(0.4)
+			self._ammo_primary_bg:set_alpha(0.2)
+			self._ammo_primary:set_alpha(0.4)
+			self._ammo_primary_parent:set_alpha(0.4)
+			self._spare_ammo_primary:set_alpha(0.4)
+		end
 	end
 
-	if self._ammo_primary and type == "primary" then
-		self._ammo_primary:set_text(tostring(current_clip))
-		PD3Figure("weapon_panel", self._ammo_primary)
+	-- Function to format numbers with leading zeros
+	local function format_number(num)
+		if num < 10 then return "00" .. num end
+		if num < 100 then return "0" .. num end
+		return tostring(num)
 	end
 
-	if self._spare_ammo_primary and type == "primary" then
-		self._spare_ammo_primary:set_text(tostring(current_left))
-		PD3Figure("weapon_panel", self._spare_ammo_primary)
+	-- Function to set colors
+	local function set_ammo_color(ammo_display, ammo_bg, spare_ammo_display, spare_ammo_bg, low_clip, low)
+		if low_clip then
+			ammo_display:set_color(Color(1, 255/255, 54/255, 54/255))
+			ammo_bg:set_color(Color(1, 255/255, 54/255, 54/255))
+		elseif low then
+			spare_ammo_display:set_color(Color(1, 255/255, 54/255, 54/255))
+			spare_ammo_bg:set_color(Color(1, 255/255, 54/255, 54/255))
+		else
+			ammo_display:set_color(Color.white)
+			ammo_bg:set_color(Color.white)
+			spare_ammo_display:set_color(Color.white)
+			spare_ammo_bg:set_color(Color.white)
+		end
 	end
 
-	if self._ammo_secondary and type == "secondary" then
-		self._ammo_secondary:set_text(tostring(current_clip))
-		PD3Figure("weapon_panel", self._ammo_secondary)
-	end
+	-- Set correct ammo display based on weapon selection
+	set_ammo_display(index == 2)
 
-	if self._spare_ammo_secondary and type == "secondary" then
-		self._spare_ammo_secondary:set_text(tostring(current_left))
-		PD3Figure("weapon_panel", self._spare_ammo_secondary)
-	end
-
+	-- Update ammo text values
 	if type == "primary" then
-		if low_ammo_clip then
-			self._ammo_primary:set_color(Color(1, 255/255, 54/255, 54/255))
-			self._ammo_primary_bg:set_color(Color(1, 255/255, 54/255, 54/255))
-		elseif low_ammo then
-			self._spare_ammo_primary:set_color(Color(1, 255/255, 54/255, 54/255))
-			self._spare_ammo_primary_bg:set_color(Color(1, 255/255, 54/255, 54/255))
-		else
-			self._ammo_primary:set_color(Color.white)
-			self._ammo_primary_bg:set_color(Color.white)
-			self._spare_ammo_primary:set_color(Color.white)
+		if self._ammo_primary then
+			self._ammo_primary:set_text(tostring(current_clip))
+			PD3Figure("weapon_panel", self._ammo_primary)
+		end
+		if self._spare_ammo_primary then
+			self._spare_ammo_primary:set_text(tostring(current_left))
+			PD3Figure("weapon_panel", self._spare_ammo_primary)
+		end
+		if self._ammo_primary_bg then
+			self._ammo_primary_bg:set_text(format_number(current_clip))
+		end
+		if self._spare_ammo_primary_bg then
+			self._spare_ammo_primary_bg:set_text(format_number(current_left))
+		end
+	elseif type == "secondary" then
+		if self._ammo_secondary then
+			self._ammo_secondary:set_text(tostring(current_clip))
+			PD3Figure("weapon_panel", self._ammo_secondary)
+		end
+		if self._spare_ammo_secondary then
+			self._spare_ammo_secondary:set_text(tostring(current_left))
+			PD3Figure("weapon_panel", self._spare_ammo_secondary)
+		end
+		if self._ammo_secondary_bg then
+			self._ammo_secondary_bg:set_text(format_number(current_clip))
+		end
+		if self._spare_ammo_secondary_bg then
+			self._spare_ammo_secondary_bg:set_text(format_number(current_left))
 		end
 	end
 
-	if type == "secondary" then
-		if low_ammo_clip then
-			self._ammo_secondary:set_color(Color(1, 255/255, 54/255, 54/255))
-			self._ammo_secondary_bg:set_color(Color(1, 255/255, 54/255, 54/255))
-		elseif low_ammo then
-			self._spare_ammo_secondary:set_color(Color(1, 255/255, 54/255, 54/255))
-			self._spare_ammo_secondary_bg:set_color(Color(1, 255/255, 54/255, 54/255))
-		else
-			self._ammo_secondary:set_color(Color.white)
-			self._ammo_secondary_bg:set_color(Color.white)
-			self._spare_ammo_secondary:set_color(Color.white)
-		end
+	-- Update colors based on ammo count
+	if type == "primary" then
+		set_ammo_color(
+			self._ammo_primary, self._ammo_primary_bg,
+			self._spare_ammo_primary, self._spare_ammo_primary_bg,
+			low_ammo_clip, low_ammo
+		)
+	elseif type == "secondary" then
+		set_ammo_color(
+			self._ammo_secondary, self._ammo_secondary_bg,
+			self._spare_ammo_secondary, self._spare_ammo_secondary_bg,
+			low_ammo_clip, low_ammo
+		)
 	end
 end
 

@@ -3,7 +3,7 @@
 	"description" : "tba",
 	"author" : "Freyah; Eightan",
 	"contact" : "",
-	"version" : "v0.0.5",
+	"version" : "v0.0.6",
 	"hooks" : [
 		{
 			"hook_id" : "lib/managers/menumanager",

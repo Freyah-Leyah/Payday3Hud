@@ -58,25 +58,43 @@ function PD3Figure(type, obj)
         local lenghts = {
             wpn_primary_ammo_pd3 = {
                 12,
-                0,
-                17
+                12,
+                -12,
+                -12
             },
             wpn_spare_primary_ammo_pd3 = {
                 10,
-                0,
-                13
+                10,
+                -9,
+                -12
             },
             wpn_secondary_ammo_pd3 = {
                 24,
                 -12,
-                17
+                -24,
+                -12
             },
             wpn_spare_secondary_ammo_pd3 = {
                 10,
+                10,
                 0,
-                17
+                -10
             }
         }
+
+        if not obj:name() then
+            return
+        end
+
+        if text_length == 1 then
+            if not PD3Figure_OriginalPositions[obj:name() .. text_length] then
+                obj:set_x(obj:x() + lenghts[obj:name()][text_length])
+                PD3Figure_OriginalPositions[obj:name() .. text_length] = obj:x()
+            end
+            obj:set_x(PD3Figure_OriginalPositions[obj:name() .. text_length])
+            return
+        end
+
 
         if text_length == 2 then
             if not PD3Figure_OriginalPositions[obj:name() .. text_length] then
@@ -96,7 +114,7 @@ function PD3Figure(type, obj)
             return
         end
 
-        if text_length == 1 then
+        if text_length == 4 then
             if not PD3Figure_OriginalPositions[obj:name() .. text_length] then
                 obj:set_x(obj:x() + lenghts[obj:name()][text_length])
                 PD3Figure_OriginalPositions[obj:name() .. text_length] = obj:x()
