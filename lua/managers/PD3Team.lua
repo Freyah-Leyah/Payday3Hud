@@ -173,22 +173,21 @@ function PD3Teammate:init(i, teammates_panel, is_player, width)
 
 	local texture, rect = tweak_data.hud_icons:get_icon_data("pd2_mask_" .. i)
 	local size = 64
-	local mask_pad = 2
-	local mask_pad_x = 17
-	local mask_pad_y = 6
-	local y = teammate_panel:h() - name:h() - size + mask_pad
-	local mask = teammate_panel:bitmap({
-		name = "mask",
+	local heister_pad = 2
+	local heister_pad_x = 17
+	local heister_pad_y = 6
+	local y = teammate_panel:h() - name:h() - size + heister_pad
+	local heister = teammate_panel:bitmap({
+		name = "heister",
 		visible = true,
 		layer = 1,
-		color = Color.white,
-		texture = texture,
-		texture_rect = rect,
-		x = - mask_pad_x,
-		w = size,
-		h = size,
-		y = - mask_pad_y
+		texture = character_texture, -- no idea what to put here
+		x = - heister_pad_x,
+		w = 128,
+		h = 128,
+		y = - heister_pad_y
 	})
+	self._heister = heister
 
 	if main_player then
 		local weapons_panel = self._PD3_panel:panel({
@@ -211,6 +210,15 @@ end
 function PD3Teammate:set_name(teammate_name)
 	local name = self._name_panel
 	name:set_text(" " .. teammate_name)
+	
+	--local character = managers.criminals:character_name_by_panel_id(self._id) AI
+	--local character = managers.criminals:character_name_by_unit(managers.player:player_unit()) Main player?
+	--local character = managers.criminals:character_name_by_peer_id(self._peer_id) else this?
+	if character then 
+	 	character_name = CriminalsManager.convert_old_to_new_character_workname(character)
+		character_texture = "textures/" .. tostring(character_name)
+		self._heister:set_image(character_texture)
+	end
 end
 
 function PD3Teammate:set_revives_amount(revive_amount)
