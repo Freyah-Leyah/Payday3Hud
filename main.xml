@@ -8,5 +8,28 @@
     <AddFiles directory="assets/">
         <dds path="textures/HUDBackground"/>
         <dds path="textures/SmallHUDBackground"/>
+
+		<dds path="textures/bodhi"/>
+        <dds path="textures/bonnie"/>
+		<dds path="textures/chains"/>
+        <dds path="textures/clover"/>
+		<dds path="textures/dallas"/>
+        <dds path="textures/dragan"/>
+		<dds path="textures/duke"/>
+        <dds path="textures/ethan"/>
+		<dds path="textures/hila"/>
+        <dds path="textures/houston"/>
+		<dds path="textures/hoxton"/>
+        <dds path="textures/jacket"/>
+		<dds path="textures/jimmy"/>
+        <dds path="textures/jiro"/>
+		<dds path="textures/joy"/>
+        <dds path="textures/rust"/>
+		<dds path="textures/sangres"/>
+        <dds path="textures/scarface"/>
+		<dds path="textures/sokol"/>
+        <dds path="textures/sydney"/>
+		<dds path="textures/wick"/>
+        <dds path="textures/wolf"/>
     </AddFiles>
 </mod>
