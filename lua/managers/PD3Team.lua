@@ -1,4 +1,5 @@
-PD3Teammate = PD3Teammate or class(HUDTeammate)
+_G.PD3Teammate = _G.PD3Teammate or class(HUDTeammate)
+PD3Teammate._stored = {}
 
 PD3Hijack({
 	global_to_hijack = HUDTeammate,  -- Target instance where functions will be hijacked
@@ -20,11 +21,23 @@ Hooks:PostHook(HUDTeammate, "init", "PD3Init", function(self, i, teammates_panel
 	PD3Teammate.init(self, i, teammates_panel, is_player, width)
 end)
 
+function PD3Teammate:_get_stored_data(name)
+	log("called", "data returned " .. tostring(self._stored[name]))
+	return self._stored[name]
+end
+
+function PD3Teammate:_store_data(data, name)
+	log("stored added", tostring(data))
+	self._stored[name] = data
+end
+
 function PD3Teammate:init(i, teammates_panel, is_player, width)
 	local main_player = i == HUDManager.PLAYER_PANEL
 	self._id = i
 	self._main_player = main_player
 	self._PD3_panel = managers.hud:script(PlayerBase.PLAYER_INFO_HUD_PD2).panel
+
+	log(tostring(self._peer_id))
 
 	local template_names = {
 		"WWWWWWWWWWWWQWWW",
@@ -190,6 +203,9 @@ function PD3Teammate:init(i, teammates_panel, is_player, width)
 
 		PD3Teammate._create_weapon_panel(self, weapons_panel)
 	end
+
+	PD3Teammate:_store_data(self._teammate_panel, "_teammate_panel")
+	PD3Teammate:_store_data(self._name_panel, "_name_panel")
 end
 
 function PD3Teammate:remove_panel(weapons_panel)
@@ -201,63 +217,7 @@ end
 function PD3Teammate:add_panel()
 	-- show panels for other players
 	local teammate_panel = self._teammate_panel
-	local name = self._name_panel
 	teammate_panel:set_visible(true)
-	local character_texture = nil
-	local character = nil
-	local last_id_ran = (self._peer_id or 0)
-
-	character = managers.criminals:character_name_by_peer_id(self._peer_id)
-
-	if character and self._peer_id ~= last_id_ran then
-		last_id_ran =  self._peer_id
-		character_texture = "textures/" .. tostring(character)
-
-		PD3Main:log(tostring(character_texture))
-
-		local size = 64
-		local heister_pad = 2
-		local heister_pad_x = 17
-		local heister_pad_y = 6
-		local y = teammate_panel:h() - name:h() - size + heister_pad
-		local heister = teammate_panel:bitmap({
-			name = "heister" .. tostring(self._peer_id),
-			visible = true,
-			layer = 1,
-			texture = character_texture or "", -- no idea what to put here
-			x = - heister_pad_x,
-			w = 64,
-			h = 64,
-			y = - heister_pad_y,
-			blend_mode = "normal",
-			render_template = "VertexColorTextured"
-		})
-	else
-		character = managers.criminals:character_name_by_peer_id(managers.network:session():local_peer():id())
-		if character then
-			character_texture = "textures/" .. tostring(character)
-		end
-
-		PD3Main:log(tostring(character_texture), "main player")
-
-		local size = 64
-		local heister_pad = 2
-		local heister_pad_x = 17
-		local heister_pad_y = 6
-		local y = teammate_panel:h() - name:h() - size + heister_pad
-		local heister = teammate_panel:bitmap({
-			name = "heister_main",
-			visible = true,
-			layer = 1,
-			texture = character_texture or "", -- no idea what to put here
-			x = - heister_pad_x,
-			w = 64,
-			h = 64,
-			y = - heister_pad_y,
-			blend_mode = "normal",
-			render_template = "VertexColorTextured"
-		})
-	end
 end
 
 function PD3Teammate:set_name(teammate_name)
