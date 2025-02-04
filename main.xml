@@ -8,27 +8,29 @@
     <AddFiles directory="assets/">
         <dds path="textures/HUDBackground"/>
         <dds path="textures/SmallHUDBackground"/>
-        <dds path="textures/bodhi"/>
+<!-- 		these work -->
         <dds path="textures/bonnie"/>
-        <dds path="textures/chains"/>
-        <dds path="textures/clover"/>
-        <dds path="textures/dallas"/>
+        <dds path="textures/female_1"/>
         <dds path="textures/dragan"/>
-        <dds path="textures/duke"/>
+        <dds path="textures/hoxton"/>
+        <dds path="textures/dragon"/>
+		<dds path="textures/dallas"/>
+        <dds path="textures/chico"/>
+		<dds path="textures/sokol"/>
+        <dds path="textures/sydney"/>
+		<dds path="textures/old_hoxton"/>
+		<dds path="textures/jowi"/>
+        <dds path="textures/wolf"/>
+		<!-- these dont work -->
+		<dds path="textures/bodhi"/>
+		<dds path="textures/chains"/>
+		<dds path="textures/duke"/>
         <dds path="textures/ethan"/>
         <dds path="textures/hila"/>
-        <dds path="textures/houston"/>
-        <dds path="textures/hoxton"/>
-        <dds path="textures/jacket"/>
-        <dds path="textures/jimmy"/>
-        <dds path="textures/jiro"/>
-        <dds path="textures/joy"/>
+		<dds path="textures/jacket"/>
+		<dds path="textures/jimmy"/>
+		<dds path="textures/joy"/>
         <dds path="textures/rust"/>
         <dds path="textures/sangres"/>
-        <dds path="textures/scarface"/>
-        <dds path="textures/sokol"/>
-        <dds path="textures/sydney"/>
-        <dds path="textures/wick"/>
-        <dds path="textures/wolf"/>
     </AddFiles>
 </mod>

@@ -1,9 +1,8 @@
-_G.PD3Teammate = _G.PD3Teammate or class(HUDTeammate)
-PD3Teammate._stored = {}
+PD3Teammate = PD3Teammate or class(HUDTeammate)
 
 PD3Hijack({
 	global_to_hijack = HUDTeammate,  -- Target instance where functions will be hijacked
-	func_to_hijack = { "_create_carry", "_create_radial_health", "set_health", "set_armor", "set_ammo_amount_by_type", "set_name",  "set_revives_amount", "add_panel", "remove_panel" }, -- Name of the functions to hijack
+	func_to_hijack = { "_create_carry", "_create_radial_health", "set_health", "set_armor", "set_ammo_amount_by_type", "set_name",  "set_revives_amount", "add_panel", "set_state", "set_condition" }, -- Name of the functions to hijack
 	global = PD3Teammate  -- Instance where the redirect functions exist
 })
 
@@ -21,23 +20,11 @@ Hooks:PostHook(HUDTeammate, "init", "PD3Init", function(self, i, teammates_panel
 	PD3Teammate.init(self, i, teammates_panel, is_player, width)
 end)
 
-function PD3Teammate:_get_stored_data(name)
-	log("called", "data returned " .. tostring(self._stored[name]))
-	return self._stored[name]
-end
-
-function PD3Teammate:_store_data(data, name)
-	log("stored added", tostring(data))
-	self._stored[name] = data
-end
-
 function PD3Teammate:init(i, teammates_panel, is_player, width)
 	local main_player = i == HUDManager.PLAYER_PANEL
 	self._id = i
 	self._main_player = main_player
 	self._PD3_panel = managers.hud:script(PlayerBase.PLAYER_INFO_HUD_PD2).panel
-
-	log(tostring(self._peer_id))
 
 	local template_names = {
 		"WWWWWWWWWWWWQWWW",
@@ -49,14 +36,13 @@ function PD3Teammate:init(i, teammates_panel, is_player, width)
 	local teammate_panel = self._PD3_panel:panel({
 		align = "left",
 		vertical = "bottom",
-		visible = false,
+		visible = true,
 		x = 0,
 		name = "" .. i,
 		w = 350,
-		h = 80,
+		h = 80
 	})
-
-
+	
 	self._teammate_panel = teammate_panel
 
 	self._player_panel_pd3 = teammate_panel:panel({
@@ -86,7 +72,7 @@ function PD3Teammate:init(i, teammates_panel, is_player, width)
 		x = 0,
 		y = 0,
 		w = teammate_panel:w(),
-		h = teammate_panel:h() - 20,
+		h = teammate_panel:h() - 20
 	})
 
 	if not main_player then
@@ -103,7 +89,7 @@ function PD3Teammate:init(i, teammates_panel, is_player, width)
 		text = " " .. template_names[i],
 		color = Color.white,
 		font_size = tweak_data.hud_players.name_size,
-		font = tweak_data.menu.pd2_large_font,
+		font = tweak_data.menu.pd2_large_font
 	})
 
 	managers.hud:make_fine_text(name)
@@ -186,6 +172,31 @@ function PD3Teammate:init(i, teammates_panel, is_player, width)
 
 	self._health_bar = health_bar
 	self._armor_bar = armor_bar
+	
+	
+	
+	
+	
+	
+	
+	local heister_panel = teammate_panel:panel({
+		name = "heister_panel"
+	})
+	
+	local heister_pad = 2
+	local heister_pad_x = 10
+	local heister_pad_y = 6
+
+	local heister_icon = heister_panel:bitmap({
+		texture = character_texture,
+		name = "heister_icon",
+		layer = 3,
+		h = 48,
+		w = 48,
+		x = - heister_pad_x,
+		y = - heister_pad_y
+	})
+	self._heister_icon = heister_icon
 
 	if main_player then
 		local weapons_panel = self._PD3_panel:panel({
@@ -203,21 +214,36 @@ function PD3Teammate:init(i, teammates_panel, is_player, width)
 
 		PD3Teammate._create_weapon_panel(self, weapons_panel)
 	end
-
-	PD3Teammate:_store_data(self._teammate_panel, "_teammate_panel")
-	PD3Teammate:_store_data(self._name_panel, "_name_panel")
-end
-
-function PD3Teammate:remove_panel(weapons_panel)
-	-- hide other players panel
-	local teammate_panel = self._teammate_panel
-	teammate_panel:set_visible(false)
 end
 
 function PD3Teammate:add_panel()
-	-- show panels for other players
 	local teammate_panel = self._teammate_panel
 	teammate_panel:set_visible(true)
+	self:set_player_portrait()
+end
+
+function PD3Teammate:set_state(state)
+	self:set_player_portrait()
+end
+
+function HUDTeammate:set_player_portrait()
+	local character
+	if self._main_player then
+		character = managers.criminals:character_name_by_unit(managers.player:player_unit())
+	elseif self._ai then
+		character = managers.criminals:character_name_by_panel_id(self._id)
+	else
+		character = managers.criminals:character_name_by_peer_id(self._peer_id)
+	end
+	if character then 
+	 	character_name = CriminalsManager.convert_old_to_new_character_workname(character)
+		character_texture = "textures/" .. tostring(character_name)
+		self._heister_icon:set_image(character_texture)
+	end
+end
+
+function PD3Teammate:set_condition(icon_data, text)
+	self:set_player_portrait()
 end
 
 function PD3Teammate:set_name(teammate_name)
