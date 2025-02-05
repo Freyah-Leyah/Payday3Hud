@@ -1,11 +1,14 @@
-_G.PD3HUDManager = _G.PD3HUDManager or class(HUDManager)
-
-Hooks:PostHook(HUDManager, "_create_teammates_panel", "_create_teammates_panelPD3", function (self, character_name, player_name, ai, peer_id)
-    local character_texture = nil
-	local character = nil
-    local id = peer_id
-    local teammate_panel = PD3Teammate:_get_stored_data("_teammate_panel")
+Hooks:PostHook(HUDManager, "add_teammate_panel", "add_teammate_panel_PD3", function (self, character_name, player_name, ai, peer_id)
+    self._teammate_panels_PD3 = self._teammate_panels_PD3 or {}
+    self._players_present = (self._players_present or 0)
+    local teammate_panel = PD3Teammate:_get_stored_data("teammate_panels")
     local name = PD3Teammate:_get_stored_data("_name_panel")
+
+    -- log(tostring(ai), tostring(peer_id))
+
+    self._teammate_panels_PD3 = teammate_panel
+
+    self._players_present = self._players_present + 1
 
     if not teammate_panel then
         log("teammate_panel does not exist!")
@@ -17,49 +20,47 @@ Hooks:PostHook(HUDManager, "_create_teammates_panel", "_create_teammates_panelPD
         return
     end
 
-    -- !!this works but places all icons at local player panel, i was too sleepy to think of anything else. this entire thing makes me wanna kms!!
-
-    if character_name then
-        character_texture = "textures/" .. tostring(character_name)
-        PD3Main:log(tostring(character_texture))
-
-        local size = 64
-        local heister_pad_x = 17
-        local heister_pad_y = 6
-        local heister = teammate_panel:bitmap({
-            name = "heister" .. tostring(id),
-            visible = true,
-            layer = 2,
-            texture = character_texture or "",
-            x = -heister_pad_x,
-            y = -heister_pad_y,
-            w = size,
-            h = size,
-            blend_mode = "normal",
-            render_template = "VertexColorTextured"
-        })
-	else
-		character = managers.criminals:character_name_by_peer_id(managers.network:session():local_peer():id())
-		if character then
-			character_texture = "textures/" .. tostring(character)
-		end
-
-		PD3Main:log(tostring(character_texture) .. " main player")
-
-		local size = 64
-		local heister_pad = 2
-		local heister_pad_x = 17
-		local heister_pad_y = 6
-		local y = teammate_panel:h() - name:h() - size + heister_pad
-		local heister = teammate_panel:bitmap({
-			name = "heister_main",
-			visible = true,
-			layer = 2,
-			texture = character_texture or "", -- no idea what to put here
-			x = - heister_pad_x,
-			y = - heister_pad_y,
-			blend_mode = "normal",
-			render_template = "VertexColorTextured"
-		})
-	end
+    for i=1, self._players_present do
+        log("teammate_panel.linked_to", tostring(self._teammate_panels_PD3[i].linked_to))
+        log("self._teammate_panels_PD3.taken", tostring(self._teammate_panels_PD3[i].taken))
+        if not self._teammate_panels_PD3[i].taken then
+            PD3Teammate:set_player_portrait(i, character_name)
+            self._teammate_panels_PD3[i].taken = true
+        end
+    end
 end)
+
+Hooks:PostHook(HUDManager, "remove_teammate_panel", "remove_teammate_panel_PD3", function (self, id)
+    -- !!TO DO!! 
+    -- log(tostring(id))
+end)
+
+-- function HUDManager:remove_teammate_panel(id)
+-- 	self._teammate_panels[id]:remove_panel()
+
+-- 	local panel_data = self._hud.teammate_panels_data[id]
+-- 	panel_data.taken = false
+-- 	local is_ai = self._teammate_panels[HUDManager.PLAYER_PANEL]._ai
+
+-- 	if self._teammate_panels[HUDManager.PLAYER_PANEL]._peer_id and self._teammate_panels[HUDManager.PLAYER_PANEL]._peer_id ~= managers.network:session():local_peer():id() or is_ai then
+-- 		print(" MOVE!!!", self._teammate_panels[HUDManager.PLAYER_PANEL]._peer_id, is_ai)
+
+-- 		local peer_id = self._teammate_panels[HUDManager.PLAYER_PANEL]._peer_id
+
+-- 		self:remove_teammate_panel(HUDManager.PLAYER_PANEL)
+
+-- 		if is_ai then
+-- 			local character_name = managers.criminals:character_name_by_panel_id(HUDManager.PLAYER_PANEL)
+-- 			local name = managers.localization:text("menu_" .. character_name)
+-- 			local panel_id = self:add_teammate_panel(character_name, name, true, nil)
+-- 			managers.criminals:character_data_by_name(character_name).panel_id = panel_id
+-- 		else
+-- 			local character_name = managers.criminals:character_name_by_peer_id(peer_id)
+-- 			local panel_id = self:add_teammate_panel(character_name, managers.network:session():peer(peer_id):name(), false, peer_id)
+-- 			managers.criminals:character_data_by_name(character_name).panel_id = panel_id
+-- 		end
+-- 	end
+
+-- 	managers.hud._teammate_panels[HUDManager.PLAYER_PANEL]:add_panel()
+-- 	managers.hud._teammate_panels[HUDManager.PLAYER_PANEL]:set_state("player")
+-- end

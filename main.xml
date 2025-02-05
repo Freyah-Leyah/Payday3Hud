@@ -1,5 +1,5 @@
 <mod name="PD3Hud" author="Freyah; Eightan" color="Color(0,0,0)">
-    <AssetUpdates id="" version="v0.0.6" provider="modworkshop"/>
+    <AssetUpdates id="" version="v0.0.7" provider="modworkshop"/>
 
     <Localization directory="loc" default="english.json">
         <loc file="english.json" language="english"/>
@@ -8,27 +8,27 @@
     <AddFiles directory="assets/">
         <dds path="textures/HUDBackground"/>
         <dds path="textures/SmallHUDBackground"/>
-        <dds path="textures/bodhi"/>
         <dds path="textures/bonnie"/>
-        <dds path="textures/chains"/>
-        <dds path="textures/clover"/>
-        <dds path="textures/dallas"/>
+        <dds path="textures/female_1"/>
         <dds path="textures/dragan"/>
-        <dds path="textures/duke"/>
-        <dds path="textures/ethan"/>
-        <dds path="textures/hila"/>
-        <dds path="textures/houston"/>
-        <dds path="textures/hoxton"/>
-        <dds path="textures/jacket"/>
-        <dds path="textures/jimmy"/>
-        <dds path="textures/jiro"/>
-        <dds path="textures/joy"/>
-        <dds path="textures/rust"/>
-        <dds path="textures/sangres"/>
-        <dds path="textures/scarface"/>
+        <dds path="textures/american"/>
+        <dds path="textures/dragon"/>
+        <dds path="textures/russian"/>
+        <dds path="textures/chico"/>
         <dds path="textures/sokol"/>
         <dds path="textures/sydney"/>
-        <dds path="textures/wick"/>
-        <dds path="textures/wolf"/>
+        <dds path="textures/old_hoxton"/>
+        <dds path="textures/jowi"/>
+        <dds path="textures/german"/>
+        <dds path="textures/bodhi"/>
+        <dds path="textures/spanish"/>
+        <dds path="textures/myh"/>
+        <dds path="textures/ecp_male"/>
+        <dds path="textures/ecp_female"/>
+        <dds path="textures/jacket"/>
+        <dds path="textures/jimmy"/>
+        <dds path="textures/joy"/>
+        <dds path="textures/wild"/>
+        <dds path="textures/max"/>
     </AddFiles>
 </mod>

@@ -31,13 +31,14 @@ function PD3Teammate:_store_data(data, name)
 	self._stored[name] = data
 end
 
+PD3Teammate._created_panels = {}
+PD3Teammate._heister_icon = {}
 function PD3Teammate:init(i, teammates_panel, is_player, width)
 	local main_player = i == HUDManager.PLAYER_PANEL
 	self._id = i
 	self._main_player = main_player
 	self._PD3_panel = managers.hud:script(PlayerBase.PLAYER_INFO_HUD_PD2).panel
-
-	log(tostring(self._peer_id))
+	PD3Teammate._created_panels = PD3Teammate._created_panels or {}
 
 	local template_names = {
 		"WWWWWWWWWWWWQWWW",
@@ -56,7 +57,9 @@ function PD3Teammate:init(i, teammates_panel, is_player, width)
 		h = 80,
 	})
 
+	local team_panels = { teammate_panel, linked_to = i, taken = false }
 
+	table.insert(PD3Teammate._created_panels, i, team_panels)
 	self._teammate_panel = teammate_panel
 
 	self._player_panel_pd3 = teammate_panel:panel({
@@ -132,7 +135,7 @@ function PD3Teammate:init(i, teammates_panel, is_player, width)
 		font_size = 20,
 		font = tweak_data.menu.pd2_large_font,
 		align = "center",
-		layer = 3,
+		layer = 5,
 		color = Color.white
 	})
 
@@ -140,7 +143,7 @@ function PD3Teammate:init(i, teammates_panel, is_player, width)
 	local arrow = revive_panel:bitmap({
 		texture = "guis/textures/pd2/arrow_downcounter",
 		name = "revive_arrow",
-		layer = 3,
+		layer = 5,
 		h = arrow_size,
 		w = arrow_size
 	})
@@ -187,6 +190,22 @@ function PD3Teammate:init(i, teammates_panel, is_player, width)
 	self._health_bar = health_bar
 	self._armor_bar = armor_bar
 
+	local heister_panel = teammate_panel:panel({
+		name = "heister_panel"
+	})
+
+	local heister_icon = heister_panel:bitmap({
+		texture = "",
+		name = "heister_icon" .. i,
+		layer = 2,
+		h = 0,
+		w = 0,
+		x = 0,
+		y = 0
+	})
+
+	PD3Teammate._heister_icon[i] = heister_icon
+
 	if main_player then
 		local weapons_panel = self._PD3_panel:panel({
 			name = "weapons_panel_pd3",
@@ -204,7 +223,7 @@ function PD3Teammate:init(i, teammates_panel, is_player, width)
 		PD3Teammate._create_weapon_panel(self, weapons_panel)
 	end
 
-	PD3Teammate:_store_data(self._teammate_panel, "_teammate_panel")
+	PD3Teammate:_store_data(PD3Teammate._created_panels, "teammate_panels")
 	PD3Teammate:_store_data(self._name_panel, "_name_panel")
 end
 
@@ -218,11 +237,33 @@ function PD3Teammate:add_panel()
 	-- show panels for other players
 	local teammate_panel = self._teammate_panel
 	teammate_panel:set_visible(true)
+	PD3Teammate:set_player_portrait()
 end
 
 function PD3Teammate:set_name(teammate_name)
 	local name = self._name_panel
 	name:set_text(" " .. teammate_name)
+end
+
+function PD3Teammate:set_player_portrait(i, character_name)
+	if character_name and i then
+		local character_texture = "textures/" .. tostring(character_name)
+		log(tostring(character_texture))
+		self._heister_icon[i]:set_image(character_texture)
+		self._heister_icon[i]:set_name("heister_icon_" .. tostring(character_name))
+		PD3Figure("heister_icon", self._heister_icon[i])
+		return
+	end
+
+	local character = managers.criminals:character_name_by_unit(managers.player:player_unit())
+
+	if character then
+		local character_name_local = CriminalsManager.convert_old_to_new_character_workname(character)
+		local character_texture = "textures/" .. tostring(character_name_local)
+		self._heister_icon[4]:set_image(character_texture)
+		self._heister_icon[4]:set_name("heister_icon_" .. tostring(character_name_local))
+		PD3Figure("heister_icon", self._heister_icon[4])
+	end
 end
 
 function PD3Teammate:set_revives_amount(revive_amount)

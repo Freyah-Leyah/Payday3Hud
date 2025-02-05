@@ -51,6 +51,10 @@ function PD3Hijack(hijack_data)
     end
 end
 
+local function remove_prefix(str)
+    return (tostring(str):gsub("^heister_icon_", ""))
+end
+
 PD3Figure_OriginalPositions = {}
 function PD3Figure(type, obj)
     if type == "weapon_panel" then
@@ -69,9 +73,9 @@ function PD3Figure(type, obj)
                 -12
             },
             wpn_secondary_ammo_pd3 = {
+                24,
                 12,
-                12,
-                -12,
+                -24,
                 -12
             },
             wpn_spare_secondary_ammo_pd3 = {
@@ -121,6 +125,76 @@ function PD3Figure(type, obj)
             end
             obj:set_x(PD3Figure_OriginalPositions[obj:name() .. text_length])
             return
+        end
+    end
+
+    if type == "heister_icon" then
+        local sizes = {
+            bonnie = { w = 48, h = 48 },
+            female_1 = { w = 48, h = 48 },
+            dragan = { w = 48, h = 48 },
+            american = { w = 48, h = 48 },
+            dragon = { w = 48, h = 48 },
+            russian = { w = 48, h = 48 },
+            chico = { w = 48, h = 48 },
+            sokol = { w = 48, h = 48 },
+            sydney = { w = 48, h = 48 },
+            old_hoxton = { w = 48, h = 48 },
+            jowi = { w = 48, h = 48 },
+            german = { w = 48, h = 48 },
+            bodhi = { w = 48, h = 48 },
+            spanish = { w = 48, h = 48 },
+            myh = { w = 48, h = 48 },
+            ecp_male = { w = 48, h = 48 },
+            ecp_female = { w = 48, h = 48 },
+            jacket = { w = 48, h = 48 },
+            jimmy = { w = 48, h = 48 },
+            joy = { w = 48, h = 48 },
+            wild = { w = 48, h = 48 },
+            max = { w = 48, h = 48 },
+        }
+        local positons = {
+            bonnie = { x = -10 , y = -6 },
+            female_1 = { x = -10 , y = -6 },
+            dragan = { x = -10 , y = -6 },
+            american = { x = -10 , y = -6 },
+            dragon = { x = -10 , y = -6 },
+            russian = { x = -10 , y = -6 },
+            chico = { x = -10 , y = -6 },
+            sokol = { x = -10 , y = -6 },
+            sydney = { x = -10 , y = -6 },
+            old_hoxton = { x = -10 , y = -6 },
+            jowi = { x = -10 , y = -6 },
+            german = { x = -10 , y = -6 },
+            bodhi = { x = -10 , y = -6 },
+            spanish = { x = -10 , y = -6 },
+            myh = { x = -10 , y = -6 },
+            ecp_male = { x = -10 , y = -6 },
+            ecp_female = { x = -10 , y = -6 },
+            jacket = { x = -10 , y = -6 },
+            jimmy = { x = -10 , y = -6 },
+            joy = { x = -10 , y = -6 },
+            wild = { x = -10 , y = -6 },
+            max = { x = -10 , y = -6 },
+        }
+
+        if obj then
+            if obj:name() then
+                local index = remove_prefix(tostring(obj:name()))
+                if index and sizes[index] and positons[index]  then
+                    PD3Main:log("[PD3Figure] setting sizes and positons for " .. tostring(index))
+                    obj:set_w(sizes[index].w)
+                    obj:set_h(sizes[index].h)
+                    obj:set_x(positons[index].x)
+                    obj:set_y(positons[index].y)
+                else
+                    PD3Main:log("[ERROR] obj:name() is incorrect! (heister name expected, got " .. index .. ")")
+                end
+            else
+                PD3Main:log("[ERROR] obj:name() is invalid! (bitmap name expected, got nil)")
+            end
+        else
+            PD3Main:log("[ERROR] obj is invalid! (bitmap expected, got nil)")
         end
     end
 end
